@@ -30,4 +30,13 @@ public abstract class Obra {
 
     public void adicionarAvaliacao(Avaliacao avaliacao){avaliacoes.add(avaliacao);}
 
+    public int mediaAvaliacoes(){
+        int cont = 0;
+        for (Avaliacao avaliacao : avaliacoes) {
+            cont += avaliacao.getNota();
+        }
+        return cont;
+    }
+
+    public abstract String exibirDetalhes();
 }
