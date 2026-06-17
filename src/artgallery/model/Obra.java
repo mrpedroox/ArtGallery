@@ -30,12 +30,15 @@ public abstract class Obra {
 
     public void adicionarAvaliacao(Avaliacao avaliacao){avaliacoes.add(avaliacao);}
 
-    public int mediaAvaliacoes(){
-        int cont = 0;
-        for (Avaliacao avaliacao : avaliacoes) {
-            cont += avaliacao.getNota();
-        }
-        return cont;
+    public double mediaAvaliacoes(){
+    	if (avaliacoes.isEmpty()) return 0;
+        double soma = 0;
+        for (Avaliacao a : avaliacoes) soma += a.getNota();
+        return soma / avaliacoes.size();
+    }
+    
+    public Vector<Avaliacao> getAvaliacoes(){
+    	return avaliacoes;
     }
 
     public abstract String exibirDetalhes();

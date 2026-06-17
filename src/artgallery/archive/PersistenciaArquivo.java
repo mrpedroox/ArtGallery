@@ -14,7 +14,7 @@ public class PersistenciaArquivo {
     private String OBRAS = DIR + File.separator + "obras.txt";
     private String AVALS = DIR + File.separator + "avaliacoes.txt";
     private String EXPOS = DIR + File.separator + "exposicoes.txt";
-    private String SEP = "|";
+    private String SEP = "|"; 
     private String SEP_RE = "\\|";
 
     public void inicializar(){
@@ -51,9 +51,52 @@ public class PersistenciaArquivo {
 
         try{
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(arquivo), StandardCharsets.UTF_8));
-            
+            String linha;
+            while((linha = br.readLine())!=null) {
+            	linha = linha.trim();
+            	if(linha.isEmpty()) continue;
+            	
+            	String[] p = linha.split(SEP_RE, -1);
+            	if (p.length < 6) continue;
+            	String tipo = p[0];
+            	String titulo = desescapar(p[1]);
+            	String autor = desescapar(p[2]);
+            	boolean ativa = Boolean.parseBoolean(p[3]);
+            	Obra obra = null;
+            	try {
+            		switch (tipo) {
+            		case "PINTURA":
+            			obra = new PinturaDigital(titulo, autor, desescapar(p[4]), desescapar(p[5]));
+            			break;
+            		case "MODELAGEM3D":
+            			obra = new Modelagem3D(titulo, autor, desescapar(p[4]), desescapar(p[5]));
+            			break;
+            		case "ARTEGENERATIVA":
+            			obra = new ArteGenerativa(titulo, autor, desescapar(p[4]), desescapar(p[5]));
+            			break;
+            		}
+            	} catch(NumberFormatException e) {
+            		System.err.println("Linha invalida em obras.txt: " + linha);
+            	}
+            	
+            	if(obra!=null) {
+            		obra.setAtiva(ativa);
+            		obras.add(obra);
+            	}
+            }
         }catch(IOException e){
-
+        	System.err.println("Erro ao carregar obras: "+ e.getMessage());
         }
+    }
+    
+    public void salvarAvaliacoes(Vector<Obra> obras) {
+    	try {
+    		PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(AVALS), StandardCharsets.UTF_8));
+    		for(Obra o : obras) {
+    			for(Avaliacao a : o.getAvaliacoes()) {
+    				
+    			}
+    		}
+    	}
     }
 }
