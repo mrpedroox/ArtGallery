@@ -4,6 +4,9 @@ import artgallery.model.ArteGenerativa;
 import artgallery.model.Modelagem3D;
 import artgallery.model.Obra;
 import artgallery.model.PinturaDigital;
+import artgallery.model.Avaliacao;
+import artgallery.model.Exposicao;
+import artgallery.exceptions.NotaInvalidaException;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -94,9 +97,86 @@ public class PersistenciaArquivo {
     		PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(AVALS), StandardCharsets.UTF_8));
     		for(Obra o : obras) {
     			for(Avaliacao a : o.getAvaliacoes()) {
-    				
+    				pw.println(escapar(o.getTitulo())+ SEP + escapar(a.getUsuario()) + SEP + a.getNota() + SEP + escapar(a.getComentario()));
     			}
+    		}
+    	} catch (IOException e) {
+    		System.err.println("Erro ao salvar avaliações: " + e.getMessage());
+    	}
+    }
+    public void carregarAvaliacoes(Vector<Obra> obras) {
+    	File arquivo = new File(AVALS);
+    	if(!arquivo.exists()) return;
+    	
+    	try {
+    		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(arquivo), StandardCharsets.UTF_8));
+    		String linha;
+    		while((linha = br.readLine())!=null) {
+    			linha = linha.trim();
+    			if(linha.isEmpty()) continue;
+    			String[] p = linha.split(SEP_RE, 4);
+    			if(p.length<4) continue;
+    			
+    			String tituloObra = desescapar(p[0]);
+    			String usuario = desescapar(p[1]);
+    			int nota;
+    			try {
+    				nota = Integer.parseInt(p[2]);
+    			} catch(NumberFormatException e) {
+    				continue;
+    			}
+    			String comentario = desescapar(p[3]);
+    			
+    			for(Obra o : obras) {
+    				if(o.getTitulo().equalsIgnoreCase(tituloObra)) {
+    					try {
+    						o.adicionarAvaliacao(new Avaliacao(usuario, nota, comentario));
+    					} catch(NotaInvalidaException e) {
+    						System.err.println("Avaliação inválida ignorada: " + linha);
+    					}
+    					break;
+    				}
+    			}
+    		}
+    	} catch(IOException e) {
+    		System.err.println("Erro ao salvar exposições: " + e.getMessage());
+    	}
+    }
+    public void salvarExposicoes(Vector<Exposicao> exposicoes) {
+    	try {
+    		PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(EXPOS), StandardCharsets.UTF_8));
+    		for(Exposicao e : exposicoes) {
+    			pw.println("EXPOSICAO"+SEP+ escapar(e.getNome()));
+    			for(Obra o : e.listarObras()) {
+    				pw.println("OBRA"+SEP+escapar(o.getTitulo()));
+    			}
+    		}
+    	} catch(IOException e) {
+    		System.err.println("Ero ao salvar exposições: " + e.getMessage());
+    	}
+    }
+    
+    public Vector<Exposicao> carregarExposicoes(Vector<Obra> obras){
+    	Vector<Exposicao> = exposicoes = new Vector<>();
+    	File arquivo = new File(EXPOS);
+    	if(!arquivo.exists()) return exposicoes;
+    	
+    	try {
+    		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(arquivo), StandardCharsets.UTF_8));
+    		Exposicao atual = null;
+    		String linha;
+    		while((linha = br.readLine())!=null) {
+    			linha = linha.trim();
+    			if(linha.isEmpty()) continue;
+    			
+    			String[] p = linha.split(SEP_RE, 2);
+    			if(p.length < 2) continue;
+    			if("EXPOSICAO".equals(p[0])) {
+    				atual = new Exposicao(desescapar(p[1]));
+    				exposicoes.add(atual);
+    			} else if("OBRA".equals(p[0]))
     		}
     	}
     }
+    
 }
