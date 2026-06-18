@@ -11,7 +11,7 @@ public class Exposicao {
         obras = new Vector<Obra>();
     }
     public void adicionarObra(Obra obra){
-        obras.add(obra);
+        if(obra!=null)obras.add(obra);
     }
     public Vector<Obra> listarObras(){
         return obras;

@@ -13,17 +13,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.Vector;
 
 public class PersistenciaArquivo {
-    private String DIR = "dados";
-    private String OBRAS = DIR + File.separator + "obras.txt";
-    private String AVALS = DIR + File.separator + "avaliacoes.txt";
-    private String EXPOS = DIR + File.separator + "exposicoes.txt";
-    private String SEP = "|"; 
-    private String SEP_RE = "\\|";
+    private static String DIR = "dados";
+    private static String OBRAS = DIR + File.separator + "obras.txt";
+    private static String AVALS = DIR + File.separator + "avaliacoes.txt";
+    private static String EXPOS = DIR + File.separator + "exposicoes.txt";
+    private static String SEP = "|";
+    private static String SEP_RE = "\\|";
 
-    public void inicializar(){
+    public static void inicializar(){
         new File(DIR).mkdirs();
     }
-    public void salvarObras(Vector<Obra> obras){
+    public static void salvarObras(Vector<Obra> obras){
         try{
             PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(OBRAS), StandardCharsets.UTF_8));
             for(Obra o : obras){
@@ -34,7 +34,7 @@ public class PersistenciaArquivo {
                     linha = "PINTURA" + SEP + escapar(p.getTitulo()) + SEP + escapar(p.getAutor()) + SEP + p.isAtiva() + SEP + escapar(p.getResolucao()) + SEP + escapar(p.getSoftwareUtilizado());
                 } else if(o instanceof Modelagem3D){
                     Modelagem3D m = (Modelagem3D) o;
-                    linha = "MODELAGEM3D" + SEP + escapar(m.getTitulo()) + SEP + escapar(m.getAutor()) + SEP + m.isAtiva() + SEP + escapar(m.getNumeroPoligonos()) + SEP + escapar(m.getEngine());
+                    linha = "MODELAGEM3D" + SEP + escapar(m.getTitulo()) + SEP + escapar(m.getAutor()) + SEP + m.isAtiva() + SEP + m.getNumeroPoligonos() + SEP + escapar(m.getEngine());
                 } else if(o instanceof ArteGenerativa){
                     ArteGenerativa a = (ArteGenerativa) o;
                     linha = "ARTEGENERATIVA" + SEP + escapar(a.getTitulo()) + SEP + escapar(a.getAutor()) + SEP + a.isAtiva() + SEP + escapar(a.getAlgoritmo()) + SEP + a.getSeed();
@@ -47,7 +47,7 @@ public class PersistenciaArquivo {
         }
     }
 
-    public Vector<Obra> carregarObras(){
+    public static Vector<Obra> carregarObras(){
         Vector<Obra> obras = new Vector<>();
         File arquivo = new File(OBRAS);
         if (!arquivo.exists()) return obras;
@@ -72,10 +72,10 @@ public class PersistenciaArquivo {
             			obra = new PinturaDigital(titulo, autor, desescapar(p[4]), desescapar(p[5]));
             			break;
             		case "MODELAGEM3D":
-            			obra = new Modelagem3D(titulo, autor, desescapar(p[4]), desescapar(p[5]));
+            			obra = new Modelagem3D(titulo, autor, Integer.parseInt(p[4]), desescapar(p[5]));
             			break;
             		case "ARTEGENERATIVA":
-            			obra = new ArteGenerativa(titulo, autor, desescapar(p[4]), desescapar(p[5]));
+            			obra = new ArteGenerativa(titulo, autor, desescapar(p[4]), Long.parseLong(p[5]));
             			break;
             		}
             	} catch(NumberFormatException e) {
@@ -90,9 +90,10 @@ public class PersistenciaArquivo {
         }catch(IOException e){
         	System.err.println("Erro ao carregar obras: "+ e.getMessage());
         }
+		return obras;
     }
     
-    public void salvarAvaliacoes(Vector<Obra> obras) {
+    public static void salvarAvaliacoes(Vector<Obra> obras) {
     	try {
     		PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(AVALS), StandardCharsets.UTF_8));
     		for(Obra o : obras) {
@@ -104,7 +105,7 @@ public class PersistenciaArquivo {
     		System.err.println("Erro ao salvar avaliações: " + e.getMessage());
     	}
     }
-    public void carregarAvaliacoes(Vector<Obra> obras) {
+    public static void carregarAvaliacoes(Vector<Obra> obras) {
     	File arquivo = new File(AVALS);
     	if(!arquivo.exists()) return;
     	
@@ -142,7 +143,7 @@ public class PersistenciaArquivo {
     		System.err.println("Erro ao salvar exposições: " + e.getMessage());
     	}
     }
-    public void salvarExposicoes(Vector<Exposicao> exposicoes) {
+    public static void salvarExposicoes(Vector<Exposicao> exposicoes) {
     	try {
     		PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(EXPOS), StandardCharsets.UTF_8));
     		for(Exposicao e : exposicoes) {
@@ -157,7 +158,7 @@ public class PersistenciaArquivo {
     }
     
     public Vector<Exposicao> carregarExposicoes(Vector<Obra> obras){
-    	Vector<Exposicao> = exposicoes = new Vector<>();
+    	Vector<Exposicao> exposicoes = new Vector<>();
     	File arquivo = new File(EXPOS);
     	if(!arquivo.exists()) return exposicoes;
     	
@@ -174,9 +175,27 @@ public class PersistenciaArquivo {
     			if("EXPOSICAO".equals(p[0])) {
     				atual = new Exposicao(desescapar(p[1]));
     				exposicoes.add(atual);
-    			} else if("OBRA".equals(p[0]))
+    			} else if("OBRA".equals(p[0])&&atual!=null){
+					String tituloObra = desescapar(p[1]);
+					for(Obra o : obras){
+						if(o.getTitulo().equalsIgnoreCase(tituloObra)){
+							atual.adicionarObra(o);
+							break;
+						}
+					}
+				}
     		}
-    	}
+    	} catch (IOException e){
+			System.err.println("Erro ao carregar exposições: " + e.getMessage());
+		}
+		return exposicoes;
     }
-    
+    private static String escapar(String valor){
+		if(valor == null) return "";
+		return valor.replace("\\", "\\\\").replace("|", "\\pipe");
+	}
+	private static String desescapar(String valor){
+		if(valor == null) return "";
+		return valor.replace("\\pipe", "|").replace("\\\\", "\\");
+	}
 }

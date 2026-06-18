@@ -28,7 +28,7 @@ public abstract class Obra {
         this.ativa = ativa;
     }
 
-    public void adicionarAvaliacao(Avaliacao avaliacao){avaliacoes.add(avaliacao);}
+    public void adicionarAvaliacao(Avaliacao avaliacao){if(avaliacao!=null && avaliacao.isValida())avaliacoes.add(avaliacao);}
 
     public double mediaAvaliacoes(){
     	if (avaliacoes.isEmpty()) return 0;
