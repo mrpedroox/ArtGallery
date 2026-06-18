@@ -157,7 +157,7 @@ public class PersistenciaArquivo {
     	}
     }
     
-    public Vector<Exposicao> carregarExposicoes(Vector<Obra> obras){
+    public static Vector<Exposicao> carregarExposicoes(Vector<Obra> obras){
     	Vector<Exposicao> exposicoes = new Vector<>();
     	File arquivo = new File(EXPOS);
     	if(!arquivo.exists()) return exposicoes;
