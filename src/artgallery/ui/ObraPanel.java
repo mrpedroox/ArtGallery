@@ -24,7 +24,6 @@ public class ObraPanel extends JPanel {
     private JList<String> listaObras = new JList<>(modeloLista);
     private JTextArea areaDetalhes = new JTextArea(6, 30);
 
-    // Transformado em atributo da classe para alterar o texto durante a edição
     private JButton btnCadastrar = new JButton("Cadastrar");
 
     public ObraPanel(ArtGallery gallery) {
@@ -32,7 +31,6 @@ public class ObraPanel extends JPanel {
         setLayout(new BorderLayout(5, 5));
         setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-        // painel de cadastro (esquerda)
         JPanel form = new JPanel(new GridLayout(0, 2, 4, 4));
         form.setBorder(BorderFactory.createTitledBorder("Cadastrar / Editar Obra"));
 
@@ -60,7 +58,6 @@ public class ObraPanel extends JPanel {
         esquerda.add(form, BorderLayout.CENTER);
         esquerda.add(botoesForm, BorderLayout.SOUTH);
 
-        // painel direito: lista + detalhes
         listaObras.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         listaObras.addListSelectionListener(e -> mostrarDetalhes());
         JScrollPane scrollLista = new JScrollPane(listaObras);
@@ -115,7 +112,7 @@ public class ObraPanel extends JPanel {
 
         if (obraSelecionada != null) {
             txtTitulo.setText(obraSelecionada.getTitulo());
-            txtTitulo.setEditable(false); // Bloqueia o título para não quebrar a busca na atualização
+            txtTitulo.setEditable(false);
             txtAutor.setText(obraSelecionada.getAutor());
 
             if (obraSelecionada instanceof PinturaDigital) {
@@ -170,8 +167,8 @@ public class ObraPanel extends JPanel {
             if (btnCadastrar.getText().equals("Salvar Edição")) {
                 gallery.atualizarObra(obra);
                 MainFrame.msgSucesso(this, "Obra atualizada com sucesso!");
-                btnCadastrar.setText("Cadastrar"); // Reseta o botão
-                txtTitulo.setEditable(true);       // Libera o título novamente
+                btnCadastrar.setText("Cadastrar");
+                txtTitulo.setEditable(true);
             } else {
                 gallery.publicarObra(obra);
                 MainFrame.msgSucesso(this, "Obra cadastrada!");
@@ -180,7 +177,7 @@ public class ObraPanel extends JPanel {
             txtTitulo.setText(""); txtAutor.setText(""); txtParam1.setText(""); txtParam2.setText("");
             atualizarLista();
 
-        } catch (Exception ex) { // Captura ObraNaoEncontradaException, ObraJaCadastradaException, etc.
+        } catch (Exception ex) {
             MainFrame.msgErro(this, ex.getMessage());
         }
     }

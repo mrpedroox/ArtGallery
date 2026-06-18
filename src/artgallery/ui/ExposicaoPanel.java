@@ -21,7 +21,6 @@ public class ExposicaoPanel extends JPanel {
         setLayout(new BorderLayout(5, 5));
         setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-        // form criar exposicao
         JPanel formCriar = new JPanel(new GridLayout(0, 2, 4, 4));
         formCriar.setBorder(BorderFactory.createTitledBorder("Nova Exposicao"));
         formCriar.add(new JLabel("Nome:")); formCriar.add(txtNomeExpo);
@@ -29,7 +28,6 @@ public class ExposicaoPanel extends JPanel {
         btnCriar.addActionListener(e -> criar());
         formCriar.add(new JLabel("")); formCriar.add(btnCriar);
 
-        // form adicionar obra
         JPanel formAdd = new JPanel(new GridLayout(0, 2, 4, 4));
         formAdd.setBorder(BorderFactory.createTitledBorder("Adicionar Obra a Exposicao"));
         formAdd.add(new JLabel("Exposicao:")); formAdd.add(cbExposicoes);
